@@ -1,10 +1,10 @@
-# Order platform
+# Платформа управления заказами
 
-Production-like Go monorepo for orders and performers. This initial increment contains the repository foundation, versioned protobuf contracts, all three database migration sets, Docker Compose topology, and a functional User Service. Order, notification, bot, and outbox-worker applications deliberately remain compilable, graceful HTTP entrypoints until their implementation phase.
+Production-like Go monorepo для управления заказами и исполнителями. В текущей версии есть базовая структура репозитория, версионированные protobuf-контракты, три набора SQL-миграций, Docker Compose-топология, а также User Service, Order Service и outbox workers. Bot Service и Notification Service пока остаются компилируемыми HTTP-entrypoint’ами с корректным graceful shutdown до этапа их полной реализации.
 
 ```mermaid
 flowchart LR
-  Bot[bot-service] -->|gRPC + internal JWT| User[user-service]
+  Bot[bot-service] -->|gRPC + внутренний JWT| User[user-service]
   Bot --> Order[order-service]
   User --> UP[(users-postgres)]
   Order --> OP[(orders-postgres)]
@@ -16,20 +16,30 @@ flowchart LR
   Notify --> NP[(notifications-postgres)]
 ```
 
-## Run
+## Запуск
 
-Copy `.env.example` to `.env`, set a non-development `JWT_SECRET`, then run `docker compose up --build`. Migrations are one-shot containers and complete before User Service starts. The service exposes gRPC on `localhost:50051`, metrics on `localhost:8081/metrics`, and liveness/readiness endpoints on that same HTTP port. Prometheus is at `localhost:9090`; Grafana is at `localhost:3000` (default `admin` / `admin`).
+Скопируйте `.env.example` в `.env`, установите непубличный `JWT_SECRET`, затем выполните `docker compose up --build`.
 
-Run `make test`, `make build`, `make proto`, and `make migrate-up` locally. Generated code is committed under `gen/go` so an application build does not require `protoc`.
+Миграции запускаются в одноразовых контейнерах и завершаются до запуска соответствующих сервисов. User Service доступен по gRPC на `localhost:50051`, Order Service — на `localhost:50052`. Метрики и health endpoints доступны на `localhost:8081` и `localhost:8082` соответственно. Prometheus доступен на `localhost:9090`, Grafana — на `localhost:3000` с учётными данными по умолчанию `admin` / `admin`.
+
+Локальные команды: `make test`, `make build`, `make proto`, `make migrate-up`. Сгенерированный protobuf-код находится в `gen/go`, поэтому сборка приложения не требует установленного `protoc`.
 
 ## User Service
 
-`proto/user/v1/user.proto` defines authentication, lookup, list, create/update, permissions, activation, password management, and Telegram binding. Passwords use Argon2id; the plaintext is never persisted or logged. User writes append a common JSON `pkg/event.Envelope` to `users.outbox_events` inside the same PostgreSQL transaction as the state change. A later `user-outbox-worker` will publish the envelope to `users.events` using `FOR UPDATE SKIP LOCKED`.
+Контракт `proto/user/v1/user.proto` описывает аутентификацию, поиск и список пользователей, создание и обновление, permissions, активацию, управление паролями и привязку Telegram. Пароли хешируются Argon2id; открытый пароль не сохраняется и не логируется.
 
-Authentication is public; all other User RPCs require an HMAC-signed internal JWT in `authorization: Bearer <token>`. The reusable interceptor extracts the actor into context and validates signature and expiry. Permission-level authorization will be applied when the bot/admin adapters are introduced, along with an explicit initial-admin bootstrap flow.
+Каждое изменение пользователя добавляет JSON-envelope `pkg/event.Envelope` в `users.outbox_events` в той же PostgreSQL-транзакции, что и изменение состояния. `user-outbox-worker` выбирает события пакетами с `FOR UPDATE SKIP LOCKED` и публикует их в `users.events`.
 
-## Database boundaries and future API
+Аутентификация публична; остальные User RPC требуют HMAC-подписанный внутренний JWT в metadata: `authorization: Bearer <token>`. Interceptor проверяет подпись и срок действия, после чего сохраняет actor в `context.Context`.
 
-Each service owns only its own PostgreSQL container. `migrations/orders` intentionally has no foreign key to users; performer IDs are application-level references. `docs/openapi.yaml` preserves the requested future REST administrative routes, while gRPC stays the business-service contract.
+## Order Service
 
-Kafka runs in ZooKeeper mode and is configured for local development. Events use aggregate IDs as Kafka keys when workers are implemented; expected topics are `users.events`, `orders.events`, and their `.dlq` counterparts.
+Контракт `proto/order/v1/order.proto` поддерживает создание, чтение, обновление, смену статуса, назначение и снятие исполнителя, списки и историю изменений. Сервис проверяет internal JWT и permissions, использует optimistic locking через `expected_version`, запрещает недопустимые переходы статусов и проверяет исполнителя через User Service по gRPC.
+
+Изменения заказа, история аудита `order_history` и события `outbox_events` записываются в одной транзакции. `order-outbox-worker` публикует сообщения в `orders.events` аналогично пользовательскому worker.
+
+## Границы баз данных и будущий API
+
+Каждый сервис владеет только собственным PostgreSQL-контейнером. В `migrations/orders` намеренно нет внешнего ключа на пользователей: идентификаторы исполнителей являются ссылками уровня приложения. Будущий REST-контракт административного API зафиксирован в `docs/openapi.yaml`; gRPC остаётся внутренним контрактом бизнес-сервисов.
+
+Kafka работает в режиме ZooKeeper и настроен для локальной разработки. Сообщения используют ID агрегата в качестве Kafka key, чтобы сохранять порядок событий одного агрегата. Основные топики: `users.events`, `orders.events`, а также соответствующие DLQ-топики `users.events.dlq` и `orders.events.dlq`.
