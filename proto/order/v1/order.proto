@@ -1,9 +1,8 @@
 syntax = "proto3";
-
 package order.v1;
 option go_package = "github.com/example/order-platform/gen/go/order/v1;orderv1";
+import "google/protobuf/timestamp.proto";
 
-// Contract is intentionally defined before Order Service implementation.
 service OrderService {
   rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
   rpc GetOrder(GetOrderRequest) returns (OrderResponse);
@@ -15,14 +14,18 @@ service OrderService {
   rpc ListPerformerOrders(ListPerformerOrdersRequest) returns (ListOrdersResponse);
   rpc GetOrderHistory(GetOrderHistoryRequest) returns (OrderHistoryResponse);
 }
-message CreateOrderRequest {}
-message GetOrderRequest { string id = 1; }
-message UpdateOrderRequest { string id = 1; int64 expected_version = 2; }
-message ChangeOrderStatusRequest { string id = 1; string status = 2; int64 expected_version = 3; }
-message PerformerRequest { string order_id = 1; string performer_id = 2; }
-message ListOrdersRequest { uint32 page_size = 1; string page_token = 2; }
-message ListPerformerOrdersRequest { string performer_id = 1; uint32 page_size = 2; string page_token = 3; }
-message GetOrderHistoryRequest { string order_id = 1; }
-message OrderResponse {}
-message ListOrdersResponse {}
-message OrderHistoryResponse {}
+enum Status { STATUS_UNSPECIFIED = 0; STATUS_PLANNED = 1; STATUS_COMPLETED = 2; STATUS_CANCELLED = 3; }
+message Order { string id=1; google.protobuf.Timestamp order_date=2; string location=3; string amount=4; string customer_name=5; string customer_phone=6; string customer_contact=7; string comment=8; Status status=9; string created_by=10; string updated_by=11; int64 version=12; repeated string performer_ids=13; google.protobuf.Timestamp created_at=14; google.protobuf.Timestamp updated_at=15; }
+message CreateOrderRequest { google.protobuf.Timestamp order_date=1; string location=2; string amount=3; string customer_name=4; string customer_phone=5; string customer_contact=6; string comment=7; repeated string performer_ids=8; }
+message GetOrderRequest { string id=1; }
+message UpdateOrderRequest { string id=1; int64 expected_version=2; google.protobuf.Timestamp order_date=3; string location=4; string amount=5; string customer_name=6; string customer_phone=7; string customer_contact=8; string comment=9; }
+message ChangeOrderStatusRequest { string id=1; Status status=2; int64 expected_version=3; }
+message PerformerRequest { string order_id=1; string performer_id=2; }
+message ListOrdersRequest { uint32 page_size=1; string page_token=2; }
+message ListPerformerOrdersRequest { string performer_id=1; uint32 page_size=2; string page_token=3; }
+message GetOrderHistoryRequest { string order_id=1; }
+message OrderResponse { Order order=1; }
+message ListOrdersResponse { repeated Order orders=1; string next_page_token=2; }
+message OrderChange { string field=1; string old_value=2; string new_value=3; }
+message HistoryItem { string id=1; string order_id=2; string actor_user_id=3; string action=4; repeated OrderChange changes=5; google.protobuf.Timestamp created_at=6; }
+message OrderHistoryResponse { repeated HistoryItem items=1; }

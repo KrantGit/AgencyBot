@@ -63,16 +63,26 @@ services:
     build: { context: ., dockerfile: Dockerfile.stub }
     environment: { SERVICE_NAME: bot-service }
   user-outbox-worker:
-    <<: *stub
-    environment: { SERVICE_NAME: user-outbox-worker }
+    build: { context: ., dockerfile: Dockerfile }
+    entrypoint: ["/app/user-outbox-worker"]
+    environment: { USER_DB_DSN: postgres://app:app@users-postgres:5432/users?sslmode=disable, KAFKA_BROKERS: kafka:29092 }
     depends_on: { users-migrate: { condition: service_completed_successfully }, kafka: { condition: service_started } }
   order-service:
-    <<: *stub
-    environment: { SERVICE_NAME: order-service }
-    depends_on: { orders-migrate: { condition: service_completed_successfully } }
+    build: { context: ., dockerfile: Dockerfile }
+    entrypoint: ["/app/order-service"]
+    environment:
+      ORDER_DB_DSN: postgres://app:app@orders-postgres:5432/orders?sslmode=disable
+      USER_GRPC_ADDR: user-service:50051
+      JWT_SECRET: "${JWT_SECRET:-development-only-change-me}"
+      GRPC_PORT: "50052"
+      METRICS_PORT: "8080"
+    ports: ["50052:50052", "8082:8080"]
+    depends_on: { orders-migrate: { condition: service_completed_successfully }, user-service: { condition: service_healthy } }
   order-outbox-worker:
-    <<: *stub
-    environment: { SERVICE_NAME: order-outbox-worker }
+    build: { context: ., dockerfile: Dockerfile }
+    entrypoint: ["/app/order-outbox-worker"]
+    environment: { ORDER_DB_DSN: postgres://app:app@orders-postgres:5432/orders?sslmode=disable, KAFKA_BROKERS: kafka:29092 }
+    depends_on: { orders-migrate: { condition: service_completed_successfully }, kafka: { condition: service_started } }
   notification-service:
     <<: *stub
     environment: { SERVICE_NAME: notification-service }
