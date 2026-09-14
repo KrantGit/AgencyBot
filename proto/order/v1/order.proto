@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package order.v1;
+option go_package = "github.com/example/order-platform/gen/go/order/v1;orderv1";
+
+// Contract is intentionally defined before Order Service implementation.
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
+  rpc GetOrder(GetOrderRequest) returns (OrderResponse);
+  rpc UpdateOrder(UpdateOrderRequest) returns (OrderResponse);
+  rpc ChangeOrderStatus(ChangeOrderStatusRequest) returns (OrderResponse);
+  rpc AssignPerformer(PerformerRequest) returns (OrderResponse);
+  rpc UnassignPerformer(PerformerRequest) returns (OrderResponse);
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+  rpc ListPerformerOrders(ListPerformerOrdersRequest) returns (ListOrdersResponse);
+  rpc GetOrderHistory(GetOrderHistoryRequest) returns (OrderHistoryResponse);
+}
+message CreateOrderRequest {}
+message GetOrderRequest { string id = 1; }
+message UpdateOrderRequest { string id = 1; int64 expected_version = 2; }
+message ChangeOrderStatusRequest { string id = 1; string status = 2; int64 expected_version = 3; }
+message PerformerRequest { string order_id = 1; string performer_id = 2; }
+message ListOrdersRequest { uint32 page_size = 1; string page_token = 2; }
+message ListPerformerOrdersRequest { string performer_id = 1; uint32 page_size = 2; string page_token = 3; }
+message GetOrderHistoryRequest { string order_id = 1; }
+message OrderResponse {}
+message ListOrdersResponse {}
+message OrderHistoryResponse {}

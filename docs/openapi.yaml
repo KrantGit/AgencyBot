@@ -1,0 +1,14 @@
+openapi: 3.0.3
+info: { title: Future Admin API, version: 1.0.0 }
+paths:
+  /api/v1/auth/login: { post: { responses: { '200': { description: Authenticated } } } }
+  /api/v1/users: { get: { responses: { '200': { description: Users } } }, post: { responses: { '201': { description: Created } } } }
+  /api/v1/users/{id}: { get: { responses: { '200': { description: User } } }, patch: { responses: { '200': { description: Updated } } } }
+  /api/v1/users/{id}/permissions: { put: { responses: { '200': { description: Updated } } } }
+  /api/v1/users/{id}/disable: { post: { responses: { '200': { description: Disabled } } } }
+  /api/v1/users/{id}/enable: { post: { responses: { '200': { description: Enabled } } } }
+  /api/v1/orders: { get: { responses: { '200': { description: Orders } } }, post: { responses: { '201': { description: Created } } } }
+  /api/v1/orders/{id}: { get: { responses: { '200': { description: Order } } }, patch: { responses: { '200': { description: Updated } } } }
+  /api/v1/orders/{id}/status: { put: { responses: { '200': { description: Changed } } } }
+  /api/v1/orders/{id}/performers/{userId}: { post: { responses: { '200': { description: Assigned } } }, delete: { responses: { '204': { description: Unassigned } } } }
+  /api/v1/orders/{id}/history: { get: { responses: { '200': { description: History } } } }

@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package user.v1;
+option go_package = "github.com/example/order-platform/gen/go/user/v1;userv1";
+
+import "google/protobuf/timestamp.proto";
+
+service UserService {
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc GetUserByTelegramID(GetUserByTelegramIDRequest) returns (GetUserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc CreateUser(CreateUserRequest) returns (GetUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (GetUserResponse);
+  rpc SetUserPermissions(SetUserPermissionsRequest) returns (GetUserResponse);
+  rpc DisableUser(UserIDRequest) returns (GetUserResponse);
+  rpc EnableUser(UserIDRequest) returns (GetUserResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (Empty);
+  rpc ResetPassword(ResetPasswordRequest) returns (Empty);
+  rpc BindTelegram(BindTelegramRequest) returns (GetUserResponse);
+}
+
+message Empty {}
+enum Role { ROLE_UNSPECIFIED = 0; ROLE_ADMIN = 1; ROLE_PERFORMER = 2; }
+message User {
+  string id = 1;
+  string login = 2;
+  string full_name = 3;
+  Role role = 4;
+  bool is_active = 5;
+  optional int64 telegram_id = 6;
+  repeated string permissions = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+message AuthenticateRequest { string login = 1; string password = 2; }
+message AuthenticateResponse { User user = 1; }
+message GetUserRequest { string id = 1; }
+message GetUserByTelegramIDRequest { int64 telegram_id = 1; }
+message GetUserResponse { User user = 1; }
+message ListUsersRequest { uint32 page_size = 1; string page_token = 2; }
+message ListUsersResponse { repeated User users = 1; string next_page_token = 2; }
+message CreateUserRequest { string login = 1; string password = 2; string full_name = 3; Role role = 4; }
+message UpdateUserRequest { string id = 1; string full_name = 2; }
+message SetUserPermissionsRequest { string id = 1; repeated string permissions = 2; }
+message UserIDRequest { string id = 1; }
+message ChangePasswordRequest { string id = 1; string old_password = 2; string new_password = 3; }
+message ResetPasswordRequest { string id = 1; string new_password = 2; }
+message BindTelegramRequest { string id = 1; int64 telegram_id = 2; }
