@@ -122,6 +122,52 @@ func (r *Repository) Password(ctx context.Context, id uuid.UUID, hash string) er
 func (r *Repository) BindTelegram(ctx context.Context, id uuid.UUID, telegramID int64) error {
 	return r.mutate(ctx, id, "user.telegram_bound", map[string]any{"user_id": id, "telegram_id": telegramID}, `UPDATE users SET telegram_id=$2,updated_at=now() WHERE id=$1`, id, telegramID)
 }
+func (r *Repository) CreateTelegramLink(ctx context.Context, hash []byte, userID uuid.UUID, expiresAt time.Time) error {
+	tag, err := r.pool.Exec(ctx, `INSERT INTO telegram_link_tokens(token_hash,user_id,expires_at) VALUES($1,$2,$3)`, hash, userID, expiresAt)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return domain.ErrNotFound
+	}
+	return nil
+}
+func (r *Repository) RedeemTelegramLink(ctx context.Context, hash []byte, telegramID int64) (uuid.UUID, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	defer tx.Rollback(ctx)
+	var userID uuid.UUID
+	err = tx.QueryRow(ctx, `SELECT user_id FROM telegram_link_tokens WHERE token_hash=$1 AND used_at IS NULL AND expires_at > now() FOR UPDATE`, hash).Scan(&userID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return uuid.Nil, domain.ErrNotFound
+	}
+	if err != nil {
+		return uuid.Nil, err
+	}
+	tag, err := tx.Exec(ctx, `UPDATE users SET telegram_id=$2,updated_at=now() WHERE id=$1`, userID, telegramID)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	if tag.RowsAffected() == 0 {
+		return uuid.Nil, domain.ErrNotFound
+	}
+	if _, err = tx.Exec(ctx, `UPDATE telegram_link_tokens SET used_at=now() WHERE token_hash=$1`, hash); err != nil {
+		return uuid.Nil, err
+	}
+	payload, err := json.Marshal(event.Envelope{EventID: uuid.New(), EventType: "user.telegram_bound", EventVersion: 1, AggregateID: userID, OccurredAt: time.Now().UTC(), Producer: "user-service", Data: map[string]any{"user_id": userID, "telegram_id": telegramID}})
+	if err != nil {
+		return uuid.Nil, err
+	}
+	if _, err = tx.Exec(ctx, `INSERT INTO outbox_events(id,aggregate_id,event_type,payload) VALUES($1,$2,$3,$4)`, uuid.New(), userID, payload); err != nil {
+		return uuid.Nil, err
+	}
+	if err = tx.Commit(ctx); err != nil {
+		return uuid.Nil, err
+	}
+	return userID, nil
+}
 func (r *Repository) mutate(ctx context.Context, id uuid.UUID, typ string, data any, q string, args ...any) error {
 	return r.withEvent(ctx, id, typ, data, func(tx pgx.Tx) error {
 		tag, err := tx.Exec(ctx, q, args...)

@@ -2,11 +2,15 @@ package app
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 	"github.com/example/order-platform/internal/user/domain"
 	"github.com/example/order-platform/internal/user/password"
 	"github.com/google/uuid"
 	"strings"
+	"time"
 )
 
 type Store interface {
@@ -20,7 +24,47 @@ type Store interface {
 	SetActive(context.Context, uuid.UUID, bool) error
 	Password(context.Context, uuid.UUID, string) error
 	BindTelegram(context.Context, uuid.UUID, int64) error
+	CreateTelegramLink(context.Context, []byte, uuid.UUID, time.Time) error
+	RedeemTelegramLink(context.Context, []byte, int64) (uuid.UUID, error)
 }
+
+const defaultLinkValidity = 15 * time.Minute
+
+func (s *Service) CreateTelegramLink(ctx context.Context, userID uuid.UUID, validity time.Duration) (string, time.Time, error) {
+	if userID == uuid.Nil {
+		return "", time.Time{}, domain.ErrValidation
+	}
+	if validity == 0 {
+		validity = defaultLinkValidity
+	}
+	if validity < time.Minute || validity > 24*time.Hour {
+		return "", time.Time{}, domain.ErrValidation
+	}
+	raw := make([]byte, 32)
+	if _, err := rand.Read(raw); err != nil {
+		return "", time.Time{}, err
+	}
+	token := base64.RawURLEncoding.EncodeToString(raw)
+	hash := sha256.Sum256([]byte(token))
+	expiresAt := time.Now().Add(validity).UTC()
+	if err := s.store.CreateTelegramLink(ctx, hash[:], userID, expiresAt); err != nil {
+		return "", time.Time{}, err
+	}
+	return token, expiresAt, nil
+}
+
+func (s *Service) RedeemTelegramLink(ctx context.Context, token string, telegramID int64) (domain.User, error) {
+	if token == "" || telegramID == 0 {
+		return domain.User{}, domain.ErrValidation
+	}
+	hash := sha256.Sum256([]byte(token))
+	userID, err := s.store.RedeemTelegramLink(ctx, hash[:], telegramID)
+	if err != nil {
+		return domain.User{}, mapConflict(err)
+	}
+	return s.store.Get(ctx, userID)
+}
+
 type Service struct{ store Store }
 
 func New(store Store) *Service { return &Service{store} }

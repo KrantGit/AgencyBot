@@ -1,6 +1,6 @@
 # Платформа управления заказами
 
-Production-like Go monorepo для управления заказами и исполнителями. В текущей версии есть базовая структура репозитория, версионированные protobuf-контракты, три набора SQL-миграций, Docker Compose-топология, а также User Service, Order Service и outbox workers. Bot Service и Notification Service пока остаются компилируемыми HTTP-entrypoint’ами с корректным graceful shutdown до этапа их полной реализации.
+Production-like Go monorepo для управления заказами и исполнителями. В текущей версии есть базовая структура репозитория, версионированные protobuf-контракты, три набора SQL-миграций, Docker Compose-топология, а также User Service, Order Service, outbox workers и Telegram Bot Service. Notification Service пока остаётся компилируемым HTTP-entrypoint’ом с корректным graceful shutdown до этапа полной реализации.
 
 ```mermaid
 flowchart LR
@@ -43,3 +43,15 @@ flowchart LR
 Каждый сервис владеет только собственным PostgreSQL-контейнером. В `migrations/orders` намеренно нет внешнего ключа на пользователей: идентификаторы исполнителей являются ссылками уровня приложения. Будущий REST-контракт административного API зафиксирован в `docs/openapi.yaml`; gRPC остаётся внутренним контрактом бизнес-сервисов.
 
 Kafka работает в режиме ZooKeeper и настроен для локальной разработки. Сообщения используют ID агрегата в качестве Kafka key, чтобы сохранять порядок событий одного агрегата. Основные топики: `users.events`, `orders.events`, а также соответствующие DLQ-топики `users.events.dlq` и `orders.events.dlq`.
+
+## Telegram Bot
+
+Укажите `TELEGRAM_BOT_TOKEN` и непубличный `JWT_SECRET` в `.env`, затем запустите `docker compose up --build`. Bot Service получает обновления через long polling; публичный webhook для него не требуется.
+
+Чтобы привязать пользователя, администратор генерирует временный код (по умолчанию на 15 минут):
+
+```bash
+docker compose run --rm --entrypoint /app/telegram-link-token bot-service -user-id <UUID_пользователя>
+```
+
+Пользователь отправляет полученный код боту в команде `/start <код>`. После привязки доступны `/orders` и `/help`. Код создаётся и хранится в User Service, имеет срок действия и становится недействительным сразу после успешной привязки; не пересылайте его в общие чаты. Notification Service читает события пользователей и заказов из Kafka и отправляет привязанным активным исполнителям сообщения о новых изменениях.

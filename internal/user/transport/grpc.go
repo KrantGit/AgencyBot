@@ -80,6 +80,15 @@ func (s *Server) BindTelegram(ctx context.Context, r *userv1.BindTelegramRequest
 	u, e := s.app.BindTelegram(ctx, parseID(r.Id), r.TelegramId)
 	return &userv1.GetUserResponse{User: toProto(u)}, grpcErr(e)
 }
+func (s *Server) CreateTelegramLink(ctx context.Context, r *userv1.CreateTelegramLinkRequest) (*userv1.CreateTelegramLinkResponse, error) {
+	validity := time.Duration(r.ExpiresInSeconds) * time.Second
+	token, expiresAt, e := s.app.CreateTelegramLink(ctx, parseID(r.UserId), validity)
+	return &userv1.CreateTelegramLinkResponse{Token: token, ExpiresAt: timestamppb.New(expiresAt)}, grpcErr(e)
+}
+func (s *Server) RedeemTelegramLink(ctx context.Context, r *userv1.RedeemTelegramLinkRequest) (*userv1.GetUserResponse, error) {
+	u, e := s.app.RedeemTelegramLink(ctx, r.Token, r.TelegramId)
+	return &userv1.GetUserResponse{User: toProto(u)}, grpcErr(e)
+}
 func parseID(v string) uuid.UUID {
 	id, e := uuid.Parse(v)
 	if e != nil {

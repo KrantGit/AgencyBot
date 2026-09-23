@@ -31,6 +31,8 @@ const (
 	UserService_ChangePassword_FullMethodName      = "/user.v1.UserService/ChangePassword"
 	UserService_ResetPassword_FullMethodName       = "/user.v1.UserService/ResetPassword"
 	UserService_BindTelegram_FullMethodName        = "/user.v1.UserService/BindTelegram"
+	UserService_CreateTelegramLink_FullMethodName  = "/user.v1.UserService/CreateTelegramLink"
+	UserService_RedeemTelegramLink_FullMethodName  = "/user.v1.UserService/RedeemTelegramLink"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -49,6 +51,8 @@ type UserServiceClient interface {
 	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*Empty, error)
 	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*Empty, error)
 	BindTelegram(ctx context.Context, in *BindTelegramRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	CreateTelegramLink(ctx context.Context, in *CreateTelegramLinkRequest, opts ...grpc.CallOption) (*CreateTelegramLinkResponse, error)
+	RedeemTelegramLink(ctx context.Context, in *RedeemTelegramLinkRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 }
 
 type userServiceClient struct {
@@ -179,6 +183,26 @@ func (c *userServiceClient) BindTelegram(ctx context.Context, in *BindTelegramRe
 	return out, nil
 }
 
+func (c *userServiceClient) CreateTelegramLink(ctx context.Context, in *CreateTelegramLinkRequest, opts ...grpc.CallOption) (*CreateTelegramLinkResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateTelegramLinkResponse)
+	err := c.cc.Invoke(ctx, UserService_CreateTelegramLink_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) RedeemTelegramLink(ctx context.Context, in *RedeemTelegramLinkRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserResponse)
+	err := c.cc.Invoke(ctx, UserService_RedeemTelegramLink_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -195,6 +219,8 @@ type UserServiceServer interface {
 	ChangePassword(context.Context, *ChangePasswordRequest) (*Empty, error)
 	ResetPassword(context.Context, *ResetPasswordRequest) (*Empty, error)
 	BindTelegram(context.Context, *BindTelegramRequest) (*GetUserResponse, error)
+	CreateTelegramLink(context.Context, *CreateTelegramLinkRequest) (*CreateTelegramLinkResponse, error)
+	RedeemTelegramLink(context.Context, *RedeemTelegramLinkRequest) (*GetUserResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -240,6 +266,12 @@ func (UnimplementedUserServiceServer) ResetPassword(context.Context, *ResetPassw
 }
 func (UnimplementedUserServiceServer) BindTelegram(context.Context, *BindTelegramRequest) (*GetUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BindTelegram not implemented")
+}
+func (UnimplementedUserServiceServer) CreateTelegramLink(context.Context, *CreateTelegramLinkRequest) (*CreateTelegramLinkResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTelegramLink not implemented")
+}
+func (UnimplementedUserServiceServer) RedeemTelegramLink(context.Context, *RedeemTelegramLinkRequest) (*GetUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RedeemTelegramLink not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -478,6 +510,42 @@ func _UserService_BindTelegram_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_CreateTelegramLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTelegramLinkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).CreateTelegramLink(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_CreateTelegramLink_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).CreateTelegramLink(ctx, req.(*CreateTelegramLinkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_RedeemTelegramLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RedeemTelegramLinkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).RedeemTelegramLink(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_RedeemTelegramLink_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).RedeemTelegramLink(ctx, req.(*RedeemTelegramLinkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -532,6 +600,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BindTelegram",
 			Handler:    _UserService_BindTelegram_Handler,
+		},
+		{
+			MethodName: "CreateTelegramLink",
+			Handler:    _UserService_CreateTelegramLink_Handler,
+		},
+		{
+			MethodName: "RedeemTelegramLink",
+			Handler:    _UserService_RedeemTelegramLink_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

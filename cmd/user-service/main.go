@@ -40,7 +40,7 @@ func main() {
 		logger.Error("grpc listen failed", "error", err)
 		os.Exit(1)
 	}
-	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(transport.UnaryMetricsInterceptor(), auth.UnaryInterceptor(cfg.JWTSecret, map[string]bool{"/user.v1.UserService/Authenticate": true})))
+	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(transport.UnaryMetricsInterceptor(), auth.UnaryInterceptor(cfg.JWTSecret, map[string]bool{"/user.v1.UserService/Authenticate": true, "/user.v1.UserService/RedeemTelegramLink": true})))
 	userv1.RegisterUserServiceServer(grpcServer, transport.New(app.New(repository.New(pool))))
 	go func() {
 		if err := metrics.Serve(ctx, ":"+cfg.MetricsPort); err != nil && !errors.Is(err, context.Canceled) {

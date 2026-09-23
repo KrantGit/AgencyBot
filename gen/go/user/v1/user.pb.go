@@ -927,6 +927,162 @@ func (x *BindTelegramRequest) GetTelegramId() int64 {
 	return 0
 }
 
+type CreateTelegramLinkRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ExpiresInSeconds uint32                 `protobuf:"varint,2,opt,name=expires_in_seconds,json=expiresInSeconds,proto3" json:"expires_in_seconds,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *CreateTelegramLinkRequest) Reset() {
+	*x = CreateTelegramLinkRequest{}
+	mi := &file_user_v1_user_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateTelegramLinkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTelegramLinkRequest) ProtoMessage() {}
+
+func (x *CreateTelegramLinkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTelegramLinkRequest.ProtoReflect.Descriptor instead.
+func (*CreateTelegramLinkRequest) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *CreateTelegramLinkRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *CreateTelegramLinkRequest) GetExpiresInSeconds() uint32 {
+	if x != nil {
+		return x.ExpiresInSeconds
+	}
+	return 0
+}
+
+type CreateTelegramLinkResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateTelegramLinkResponse) Reset() {
+	*x = CreateTelegramLinkResponse{}
+	mi := &file_user_v1_user_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateTelegramLinkResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateTelegramLinkResponse) ProtoMessage() {}
+
+func (x *CreateTelegramLinkResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateTelegramLinkResponse.ProtoReflect.Descriptor instead.
+func (*CreateTelegramLinkResponse) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *CreateTelegramLinkResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *CreateTelegramLinkResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+type RedeemTelegramLinkRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	TelegramId    int64                  `protobuf:"varint,2,opt,name=telegram_id,json=telegramId,proto3" json:"telegram_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RedeemTelegramLinkRequest) Reset() {
+	*x = RedeemTelegramLinkRequest{}
+	mi := &file_user_v1_user_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RedeemTelegramLinkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RedeemTelegramLinkRequest) ProtoMessage() {}
+
+func (x *RedeemTelegramLinkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RedeemTelegramLinkRequest.ProtoReflect.Descriptor instead.
+func (*RedeemTelegramLinkRequest) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *RedeemTelegramLinkRequest) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *RedeemTelegramLinkRequest) GetTelegramId() int64 {
+	if x != nil {
+		return x.TelegramId
+	}
+	return 0
+}
+
 var File_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_v1_user_proto_rawDesc = "" +
@@ -989,12 +1145,23 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\x13BindTelegramRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vtelegram_id\x18\x02 \x01(\x03R\n" +
+	"telegramId\"b\n" +
+	"\x19CreateTelegramLinkRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12,\n" +
+	"\x12expires_in_seconds\x18\x02 \x01(\rR\x10expiresInSeconds\"m\n" +
+	"\x1aCreateTelegramLinkResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x129\n" +
+	"\n" +
+	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"R\n" +
+	"\x19RedeemTelegramLinkRequest\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1f\n" +
+	"\vtelegram_id\x18\x02 \x01(\x03R\n" +
 	"telegramId*@\n" +
 	"\x04Role\x12\x14\n" +
 	"\x10ROLE_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
 	"ROLE_ADMIN\x10\x01\x12\x12\n" +
-	"\x0eROLE_PERFORMER\x10\x022\xd9\x06\n" +
+	"\x0eROLE_PERFORMER\x10\x022\x8c\b\n" +
 	"\vUserService\x12K\n" +
 	"\fAuthenticate\x12\x1c.user.v1.AuthenticateRequest\x1a\x1d.user.v1.AuthenticateResponse\x12<\n" +
 	"\aGetUser\x12\x17.user.v1.GetUserRequest\x1a\x18.user.v1.GetUserResponse\x12T\n" +
@@ -1010,7 +1177,9 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"EnableUser\x12\x16.user.v1.UserIDRequest\x1a\x18.user.v1.GetUserResponse\x12@\n" +
 	"\x0eChangePassword\x12\x1e.user.v1.ChangePasswordRequest\x1a\x0e.user.v1.Empty\x12>\n" +
 	"\rResetPassword\x12\x1d.user.v1.ResetPasswordRequest\x1a\x0e.user.v1.Empty\x12F\n" +
-	"\fBindTelegram\x12\x1c.user.v1.BindTelegramRequest\x1a\x18.user.v1.GetUserResponseB9Z7github.com/example/order-platform/gen/go/user/v1;userv1b\x06proto3"
+	"\fBindTelegram\x12\x1c.user.v1.BindTelegramRequest\x1a\x18.user.v1.GetUserResponse\x12]\n" +
+	"\x12CreateTelegramLink\x12\".user.v1.CreateTelegramLinkRequest\x1a#.user.v1.CreateTelegramLinkResponse\x12R\n" +
+	"\x12RedeemTelegramLink\x12\".user.v1.RedeemTelegramLinkRequest\x1a\x18.user.v1.GetUserResponseB9Z7github.com/example/order-platform/gen/go/user/v1;userv1b\x06proto3"
 
 var (
 	file_user_v1_user_proto_rawDescOnce sync.Once
@@ -1025,7 +1194,7 @@ func file_user_v1_user_proto_rawDescGZIP() []byte {
 }
 
 var file_user_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_user_v1_user_proto_goTypes = []any{
 	(Role)(0),                          // 0: user.v1.Role
 	(*Empty)(nil),                      // 1: user.v1.Empty
@@ -1044,45 +1213,53 @@ var file_user_v1_user_proto_goTypes = []any{
 	(*ChangePasswordRequest)(nil),      // 14: user.v1.ChangePasswordRequest
 	(*ResetPasswordRequest)(nil),       // 15: user.v1.ResetPasswordRequest
 	(*BindTelegramRequest)(nil),        // 16: user.v1.BindTelegramRequest
-	(*timestamppb.Timestamp)(nil),      // 17: google.protobuf.Timestamp
+	(*CreateTelegramLinkRequest)(nil),  // 17: user.v1.CreateTelegramLinkRequest
+	(*CreateTelegramLinkResponse)(nil), // 18: user.v1.CreateTelegramLinkResponse
+	(*RedeemTelegramLinkRequest)(nil),  // 19: user.v1.RedeemTelegramLinkRequest
+	(*timestamppb.Timestamp)(nil),      // 20: google.protobuf.Timestamp
 }
 var file_user_v1_user_proto_depIdxs = []int32{
 	0,  // 0: user.v1.User.role:type_name -> user.v1.Role
-	17, // 1: user.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	17, // 2: user.v1.User.updated_at:type_name -> google.protobuf.Timestamp
+	20, // 1: user.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	20, // 2: user.v1.User.updated_at:type_name -> google.protobuf.Timestamp
 	2,  // 3: user.v1.AuthenticateResponse.user:type_name -> user.v1.User
 	2,  // 4: user.v1.GetUserResponse.user:type_name -> user.v1.User
 	2,  // 5: user.v1.ListUsersResponse.users:type_name -> user.v1.User
 	0,  // 6: user.v1.CreateUserRequest.role:type_name -> user.v1.Role
-	3,  // 7: user.v1.UserService.Authenticate:input_type -> user.v1.AuthenticateRequest
-	5,  // 8: user.v1.UserService.GetUser:input_type -> user.v1.GetUserRequest
-	6,  // 9: user.v1.UserService.GetUserByTelegramID:input_type -> user.v1.GetUserByTelegramIDRequest
-	8,  // 10: user.v1.UserService.ListUsers:input_type -> user.v1.ListUsersRequest
-	10, // 11: user.v1.UserService.CreateUser:input_type -> user.v1.CreateUserRequest
-	11, // 12: user.v1.UserService.UpdateUser:input_type -> user.v1.UpdateUserRequest
-	12, // 13: user.v1.UserService.SetUserPermissions:input_type -> user.v1.SetUserPermissionsRequest
-	13, // 14: user.v1.UserService.DisableUser:input_type -> user.v1.UserIDRequest
-	13, // 15: user.v1.UserService.EnableUser:input_type -> user.v1.UserIDRequest
-	14, // 16: user.v1.UserService.ChangePassword:input_type -> user.v1.ChangePasswordRequest
-	15, // 17: user.v1.UserService.ResetPassword:input_type -> user.v1.ResetPasswordRequest
-	16, // 18: user.v1.UserService.BindTelegram:input_type -> user.v1.BindTelegramRequest
-	4,  // 19: user.v1.UserService.Authenticate:output_type -> user.v1.AuthenticateResponse
-	7,  // 20: user.v1.UserService.GetUser:output_type -> user.v1.GetUserResponse
-	7,  // 21: user.v1.UserService.GetUserByTelegramID:output_type -> user.v1.GetUserResponse
-	9,  // 22: user.v1.UserService.ListUsers:output_type -> user.v1.ListUsersResponse
-	7,  // 23: user.v1.UserService.CreateUser:output_type -> user.v1.GetUserResponse
-	7,  // 24: user.v1.UserService.UpdateUser:output_type -> user.v1.GetUserResponse
-	7,  // 25: user.v1.UserService.SetUserPermissions:output_type -> user.v1.GetUserResponse
-	7,  // 26: user.v1.UserService.DisableUser:output_type -> user.v1.GetUserResponse
-	7,  // 27: user.v1.UserService.EnableUser:output_type -> user.v1.GetUserResponse
-	1,  // 28: user.v1.UserService.ChangePassword:output_type -> user.v1.Empty
-	1,  // 29: user.v1.UserService.ResetPassword:output_type -> user.v1.Empty
-	7,  // 30: user.v1.UserService.BindTelegram:output_type -> user.v1.GetUserResponse
-	19, // [19:31] is the sub-list for method output_type
-	7,  // [7:19] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	20, // 7: user.v1.CreateTelegramLinkResponse.expires_at:type_name -> google.protobuf.Timestamp
+	3,  // 8: user.v1.UserService.Authenticate:input_type -> user.v1.AuthenticateRequest
+	5,  // 9: user.v1.UserService.GetUser:input_type -> user.v1.GetUserRequest
+	6,  // 10: user.v1.UserService.GetUserByTelegramID:input_type -> user.v1.GetUserByTelegramIDRequest
+	8,  // 11: user.v1.UserService.ListUsers:input_type -> user.v1.ListUsersRequest
+	10, // 12: user.v1.UserService.CreateUser:input_type -> user.v1.CreateUserRequest
+	11, // 13: user.v1.UserService.UpdateUser:input_type -> user.v1.UpdateUserRequest
+	12, // 14: user.v1.UserService.SetUserPermissions:input_type -> user.v1.SetUserPermissionsRequest
+	13, // 15: user.v1.UserService.DisableUser:input_type -> user.v1.UserIDRequest
+	13, // 16: user.v1.UserService.EnableUser:input_type -> user.v1.UserIDRequest
+	14, // 17: user.v1.UserService.ChangePassword:input_type -> user.v1.ChangePasswordRequest
+	15, // 18: user.v1.UserService.ResetPassword:input_type -> user.v1.ResetPasswordRequest
+	16, // 19: user.v1.UserService.BindTelegram:input_type -> user.v1.BindTelegramRequest
+	17, // 20: user.v1.UserService.CreateTelegramLink:input_type -> user.v1.CreateTelegramLinkRequest
+	19, // 21: user.v1.UserService.RedeemTelegramLink:input_type -> user.v1.RedeemTelegramLinkRequest
+	4,  // 22: user.v1.UserService.Authenticate:output_type -> user.v1.AuthenticateResponse
+	7,  // 23: user.v1.UserService.GetUser:output_type -> user.v1.GetUserResponse
+	7,  // 24: user.v1.UserService.GetUserByTelegramID:output_type -> user.v1.GetUserResponse
+	9,  // 25: user.v1.UserService.ListUsers:output_type -> user.v1.ListUsersResponse
+	7,  // 26: user.v1.UserService.CreateUser:output_type -> user.v1.GetUserResponse
+	7,  // 27: user.v1.UserService.UpdateUser:output_type -> user.v1.GetUserResponse
+	7,  // 28: user.v1.UserService.SetUserPermissions:output_type -> user.v1.GetUserResponse
+	7,  // 29: user.v1.UserService.DisableUser:output_type -> user.v1.GetUserResponse
+	7,  // 30: user.v1.UserService.EnableUser:output_type -> user.v1.GetUserResponse
+	1,  // 31: user.v1.UserService.ChangePassword:output_type -> user.v1.Empty
+	1,  // 32: user.v1.UserService.ResetPassword:output_type -> user.v1.Empty
+	7,  // 33: user.v1.UserService.BindTelegram:output_type -> user.v1.GetUserResponse
+	18, // 34: user.v1.UserService.CreateTelegramLink:output_type -> user.v1.CreateTelegramLinkResponse
+	7,  // 35: user.v1.UserService.RedeemTelegramLink:output_type -> user.v1.GetUserResponse
+	22, // [22:36] is the sub-list for method output_type
+	8,  // [8:22] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_user_v1_user_proto_init() }
@@ -1097,7 +1274,7 @@ func file_user_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_v1_user_proto_rawDesc), len(file_user_v1_user_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   16,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
