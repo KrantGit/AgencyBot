@@ -112,7 +112,7 @@ func createNotifications(ctx context.Context, tx pgx.Tx, event envelope) error {
 		recipients = append(recipients, recipient)
 	}
 	for _, recipient := range recipients {
-		if _, err := tx.Exec(ctx, `INSERT INTO notifications(id,event_id,recipient_id,channel,status) SELECT $1,$2,user_id,'TELEGRAM','PENDING' FROM notification_recipients WHERE user_id=$3 AND telegram_id IS NOT NULL AND is_active ON CONFLICT(event_id,recipient_id) DO NOTHING`, uuid.New(), event.EventID, recipient); err != nil {
+		if _, err := tx.Exec(ctx, `INSERT INTO notifications(id,event_id,recipient_id,channel,status) VALUES($1,$2,$3,'TELEGRAM','PENDING') ON CONFLICT(event_id,recipient_id) DO NOTHING`, uuid.New(), event.EventID, recipient); err != nil {
 			return err
 		}
 	}

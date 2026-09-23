@@ -3,16 +3,19 @@ services:
     image: postgres:17.6-alpine3.22
     environment: { POSTGRES_DB: users, POSTGRES_USER: app, POSTGRES_PASSWORD: app }
     ports: ["5433:5432"]
+    volumes: ["users-postgres-data:/var/lib/postgresql/data"]
     healthcheck: { test: ["CMD-SHELL", "pg_isready -U app -d users"], interval: 5s, timeout: 3s, retries: 20 }
   orders-postgres:
     image: postgres:17.6-alpine3.22
     environment: { POSTGRES_DB: orders, POSTGRES_USER: app, POSTGRES_PASSWORD: app }
     ports: ["5434:5432"]
+    volumes: ["orders-postgres-data:/var/lib/postgresql/data"]
     healthcheck: { test: ["CMD-SHELL", "pg_isready -U app -d orders"], interval: 5s, timeout: 3s, retries: 20 }
   notifications-postgres:
     image: postgres:17.6-alpine3.22
     environment: { POSTGRES_DB: notifications, POSTGRES_USER: app, POSTGRES_PASSWORD: app }
     ports: ["5435:5432"]
+    volumes: ["notifications-postgres-data:/var/lib/postgresql/data"]
     healthcheck: { test: ["CMD-SHELL", "pg_isready -U app -d notifications"], interval: 5s, timeout: 3s, retries: 20 }
   users-migrate:
     image: migrate/migrate:v4.18.3
@@ -108,3 +111,7 @@ services:
     image: grafana/grafana:12.1.1
     ports: ["3000:3000"]
     volumes: ["./deploy/grafana/provisioning:/etc/grafana/provisioning:ro"]
+volumes:
+  users-postgres-data:
+  orders-postgres-data:
+  notifications-postgres-data:

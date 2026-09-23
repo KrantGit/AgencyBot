@@ -82,6 +82,11 @@ func (s *Service) handle(ctx context.Context, update Update) error {
 		return s.telegram.Send(ctx, update.Message.Chat.ID, "Для привязки отправьте: /start <логин> <пароль>")
 	case "/orders":
 		return s.sendOrders(ctx, update.Message.Chat.ID, update.Message.From.ID)
+	case "/ordersdate":
+		if len(parts) != 2 {
+			return s.telegram.Send(ctx, update.Message.Chat.ID, "Использование: /ordersdate ДД.ММ.ГГГГ")
+		}
+		return s.sendOrdersForDate(ctx, update.Message.Chat.ID, update.Message.From.ID, parts[1])
 	case "/neworder":
 		return s.startDraft(ctx, update.Message.Chat.ID, update.Message.From.ID)
 	case "/newuser":
@@ -92,7 +97,7 @@ func (s *Service) handle(ctx context.Context, update Update) error {
 		}
 		return s.startEditDraft(ctx, update.Message.Chat.ID, update.Message.From.ID, parts[1])
 	case "/help":
-		return s.telegram.Send(ctx, update.Message.Chat.ID, "Команды:\n/start <логин> <пароль> — привязать аккаунт\n/orders — мои активные заказы\n/neworder — создать заказ\n/newuser — создать пользователя\n/editorder <ID> — изменить заказ\n/cancel — отменить действие")
+		return s.telegram.Send(ctx, update.Message.Chat.ID, "Команды:\n/start <логин> <пароль> — привязать аккаунт\n/orders — мои активные заказы\n/ordersdate ДД.ММ.ГГГГ — все заказы за дату\n/neworder — создать заказ\n/newuser — создать пользователя\n/editorder <ID> — изменить заказ\n/cancel — отменить действие")
 	default:
 		return s.telegram.Send(ctx, update.Message.Chat.ID, "Неизвестная команда. Используйте /help.")
 	}
@@ -460,6 +465,32 @@ func (s *Service) sendOrders(ctx context.Context, chatID, telegramID int64) erro
 	lines = append(lines, "Ваши активные заказы:")
 	for _, order := range orders.Orders {
 		lines = append(lines, fmt.Sprintf("• %s — %s, %s", order.OrderDate.AsTime().Format("02.01 15:04"), order.Location, order.Amount))
+	}
+	return s.telegram.Send(ctx, chatID, strings.Join(lines, "\n"))
+}
+
+func (s *Service) sendOrdersForDate(ctx context.Context, chatID, telegramID int64, value string) error {
+	day, err := time.Parse("02.01.2006", value)
+	if err != nil {
+		return s.telegram.Send(ctx, chatID, "Неверный формат даты. Пример: /ordersdate 25.09.2026")
+	}
+	user, err := s.userForTelegram(ctx, telegramID)
+	if err != nil || user == nil || !hasPermission(user.Permissions, "ORDER_READ_ALL") {
+		return s.telegram.Send(ctx, chatID, "Просматривать все заказы могут только администраторы.")
+	}
+	response, err := s.orders.ListOrders(s.auth(ctx, user.Id, user.Permissions), &orderv1.ListOrdersRequest{PageSize: 100})
+	if err != nil {
+		return s.telegram.Send(ctx, chatID, "Не удалось получить список заказов.")
+	}
+	lines := []string{"Заказы на " + day.Format("02.01.2006") + ":"}
+	for _, order := range response.Orders {
+		if order.OrderDate.AsTime().Format("2006-01-02") != day.Format("2006-01-02") {
+			continue
+		}
+		lines = append(lines, fmt.Sprintf("• %s — %s, %s, %s", order.OrderDate.AsTime().Format("15:04"), order.Location, order.Amount, order.CustomerName))
+	}
+	if len(lines) == 1 {
+		return s.telegram.Send(ctx, chatID, "Заказов на эту дату нет.")
 	}
 	return s.telegram.Send(ctx, chatID, strings.Join(lines, "\n"))
 }
