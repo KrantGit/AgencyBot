@@ -14,6 +14,8 @@ import (
 const draftTTL = 30 * time.Minute
 
 type Draft struct {
+	Kind, UserLogin, UserFullName, UserRole, OrderID                                         string
+	Version                                                                                  int64
 	Step, OrderDate, Location, Amount, CustomerName, CustomerPhone, CustomerContact, Comment string
 	PerformerIDs                                                                             []string
 }
