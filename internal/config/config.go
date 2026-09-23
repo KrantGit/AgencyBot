@@ -4,7 +4,7 @@ import "os"
 
 type UserService struct{ DatabaseDSN, JWTSecret, GRPCPort, MetricsPort string }
 type OrderService struct{ DatabaseDSN, UserGRPCAddr, JWTSecret, GRPCPort, MetricsPort string }
-type BotService struct{ TelegramToken, UserGRPCAddr, OrderGRPCAddr, JWTSecret, MetricsPort string }
+type BotService struct{ TelegramToken, UserGRPCAddr, OrderGRPCAddr, JWTSecret, MetricsPort, RedisAddr string }
 type NotificationService struct{ DatabaseDSN, KafkaBrokers, TelegramToken, MetricsPort string }
 
 func User() UserService {
@@ -14,7 +14,7 @@ func Order() OrderService {
 	return OrderService{DatabaseDSN: env("ORDER_DB_DSN", "postgres://app:app@localhost:5434/orders?sslmode=disable"), UserGRPCAddr: env("USER_GRPC_ADDR", "localhost:50051"), JWTSecret: env("JWT_SECRET", "development-only-change-me"), GRPCPort: env("GRPC_PORT", "50052"), MetricsPort: env("METRICS_PORT", "8080")}
 }
 func Bot() BotService {
-	return BotService{TelegramToken: os.Getenv("TELEGRAM_BOT_TOKEN"), UserGRPCAddr: env("USER_GRPC_ADDR", "localhost:50051"), OrderGRPCAddr: env("ORDER_GRPC_ADDR", "localhost:50052"), JWTSecret: env("JWT_SECRET", "development-only-change-me"), MetricsPort: env("METRICS_PORT", "8080")}
+	return BotService{TelegramToken: os.Getenv("TELEGRAM_BOT_TOKEN"), UserGRPCAddr: env("USER_GRPC_ADDR", "localhost:50051"), OrderGRPCAddr: env("ORDER_GRPC_ADDR", "localhost:50052"), JWTSecret: env("JWT_SECRET", "development-only-change-me"), MetricsPort: env("METRICS_PORT", "8080"), RedisAddr: env("REDIS_ADDR", "localhost:6379")}
 }
 func Notification() NotificationService {
 	return NotificationService{DatabaseDSN: env("NOTIFICATION_DB_DSN", "postgres://app:app@localhost:5435/notifications?sslmode=disable"), KafkaBrokers: env("KAFKA_BROKERS", "localhost:9092"), TelegramToken: os.Getenv("TELEGRAM_BOT_TOKEN"), MetricsPort: env("METRICS_PORT", "8080")}

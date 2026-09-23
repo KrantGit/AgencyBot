@@ -43,7 +43,7 @@ func main() {
 			logger.Error("metrics stopped", "error", err)
 		}
 	}()
-	if err := bot.NewService(bot.NewTelegramClient(cfg.TelegramToken), userv1.NewUserServiceClient(userConn), orderv1.NewOrderServiceClient(orderConn), cfg.JWTSecret).Run(ctx); err != nil {
+	if err := bot.NewService(bot.NewTelegramClient(cfg.TelegramToken), userv1.NewUserServiceClient(userConn), orderv1.NewOrderServiceClient(orderConn), bot.NewDraftStore(cfg.RedisAddr), cfg.JWTSecret).Run(ctx); err != nil {
 		logger.Error("bot stopped", "error", err)
 		os.Exit(1)
 	}

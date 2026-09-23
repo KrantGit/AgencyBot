@@ -66,6 +66,7 @@ services:
       TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}"
       USER_GRPC_ADDR: user-service:50051
       ORDER_GRPC_ADDR: order-service:50052
+      REDIS_ADDR: redis:6379
       JWT_SECRET: "${JWT_SECRET:-development-only-change-me}"
       METRICS_PORT: "8080"
     depends_on: { user-service: { condition: service_healthy }, order-service: { condition: service_started } }

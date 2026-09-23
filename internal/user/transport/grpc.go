@@ -3,6 +3,7 @@ package transport
 import (
 	"context"
 	"errors"
+	"log/slog"
 	userv1 "github.com/example/order-platform/gen/go/user/v1"
 	"github.com/example/order-platform/internal/metrics"
 	"github.com/example/order-platform/internal/user/app"
@@ -126,6 +127,7 @@ func grpcErr(err error) error {
 	case errors.Is(err, domain.ErrConflict):
 		return status.Error(codes.AlreadyExists, err.Error())
 	default:
+		slog.Error("user rpc failed", "error", err)
 		return status.Error(codes.Internal, "internal error")
 	}
 }

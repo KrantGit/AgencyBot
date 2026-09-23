@@ -160,7 +160,7 @@ func (r *Repository) RedeemTelegramLink(ctx context.Context, hash []byte, telegr
 	if err != nil {
 		return uuid.Nil, err
 	}
-	if _, err = tx.Exec(ctx, `INSERT INTO outbox_events(id,aggregate_id,event_type,payload) VALUES($1,$2,$3,$4)`, uuid.New(), userID, payload); err != nil {
+	if _, err = tx.Exec(ctx, `INSERT INTO outbox_events(id,aggregate_id,event_type,payload) VALUES($1,$2,$3,$4)`, uuid.New(), userID, "user.telegram_bound", payload); err != nil {
 		return uuid.Nil, err
 	}
 	if err = tx.Commit(ctx); err != nil {
